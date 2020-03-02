@@ -110,11 +110,38 @@ void if_add_cishu(vector<Exp>* exp)
 	}
 }
 
-bool if_dividend_bigger_than_divisor(vector<Exp>* exp, vector<Exp>* main_exp) 
+// 删除首位出现的零
+void remove_zero(vector<Exp>* exp) 
 {
+	for (vector<Exp>::iterator it = exp->begin(); it < exp->end(); ++it) 
+	{
+		if (it->xishu == 0) 
+		{
+			it = exp->erase(it);
+		}
+		else 
+		{
+			break;
+		}
+	}
+}
+
+// 判断被除数是否大于除数
+bool if_dividend_bigger_than_divisor(vector<Exp>* exp, vector<int>* main_exp) 
+{
+	// 判断位数
+	if (exp->size() > main_exp->size()) 
+	{
+		return false;
+	}
+	else if (exp->size() > main_exp->size()) 
+	{
+		return true;
+	}
+	// 位数相同时判断每一位的大小
 	for (int index = 0; index < exp->size(); index++)
 	{
-		if ((*main_exp)[index].xishu < (*exp)[index].xishu)
+		if ((*main_exp)[index] < (*exp)[index].xishu)
 		{
 			return false;
 		}
@@ -125,7 +152,43 @@ bool if_dividend_bigger_than_divisor(vector<Exp>* exp, vector<Exp>* main_exp)
 // 大除法！！！
 int big_divide(vector<Exp>* exp, vector<Exp>* main_exp) 
 {
-	if_dividend_bigger_than_divisor(exp, main_exp);
+	// 从总被除数中取出与除数相同个数的数，添加到当前被除数
+	int beichuNextCount = exp->size();
+	vector<int> dangqian(exp->size());
+	for (int i = 0; i < dangqian.size(); i++) 
+	{
+		dangqian[i] = (*exp)[i].xishu;
+	}
+	while (true){
+		// 判断被除数是否大于除数
+		if (if_dividend_bigger_than_divisor(exp, &dangqian))
+		{
+			// 遍历测试被除数是除数的多少倍(取整)
+
+			// 除数的每一项乘以倍数
+
+			// 被除数的每一项减去除数的每一项
+
+			// 将他们的差设为新一轮的被除数
+
+		}
+		else
+		{
+			// 判断总被除数内是否还有未添加到当前被除数的数
+			if (beichuNextCount != main_exp->size())
+			{
+				// 将总被除数的下一位添加到当前被除数
+				dangqian.push_back((*main_exp)[beichuNextCount].xishu);
+			}
+			else
+			{
+				// 已没有要除的数，大除法完成，程序返回余数
+				return;
+			}
+		}
+	}
+
+
 
 
 	return 0;
