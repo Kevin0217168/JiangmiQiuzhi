@@ -128,7 +128,7 @@ void remove_zero(vector<Exp>* exp)
 }
 
 // 判断被除数是否大于除数
-bool if_dividend_bigger_than_divisor(vector<Exp>* exp, vector<int>* main_exp)
+bool if_dividend_bigger_than_divisor(vector<int>* exp, vector<int>* main_exp)
 {
 	// 判断位数
 	if (exp->size() > main_exp->size())
@@ -142,7 +142,7 @@ bool if_dividend_bigger_than_divisor(vector<Exp>* exp, vector<int>* main_exp)
 	// 位数相同时判断每一位的大小
 	for (int index = 0; index < exp->size(); index++)
 	{
-		if ((*main_exp)[index] < (*exp)[index].xishu)
+		if ((*main_exp)[index] < (*exp)[index])
 		{
 			return false;
 		}
@@ -150,17 +150,17 @@ bool if_dividend_bigger_than_divisor(vector<Exp>* exp, vector<int>* main_exp)
 	return true;
 }
 
-vector<int>* cheng(vector<Exp>* exp, int bei) 
+vector<int>* cheng(vector<int>* exp, int bei) 
 {
 	vector<int>* result = new vector<int>;
-	for (vector<Exp>::iterator it = exp->begin(); it < exp->end(); ++it) 
+	for (vector<int>::iterator it = exp->begin(); it < exp->end(); ++it) 
 	{
-		result->push_back((it->xishu) * bei);
+		result->push_back((*it) * bei);
 	}
 	return result;
 }
 
-int beishu(vector<Exp>* exp, vector<int>* main_exp) 
+int beishu(vector<int>* exp, vector<int>* main_exp) 
 {
 	int bei = 2;
 	while (true)
@@ -210,8 +210,16 @@ int zhuanhuan(vector<int>* exp)
 }
 
 // 被除数的每一项减去除数的每一项
-vector<int>* sub(vector<Exp>* exp, vector<int>* main_exp) 
+vector<int>* sub(vector<int>* exp, vector<int>* main_exp) 
 {
+	vector<int>* result_list = new vector<int>;
+	string result = to_string(zhuanhuan(exp) - zhuanhuan(main_exp));
+	for (int i = 0; i < result.size(); i++) 
+	{
+		// 这里不用判断复数的情况，因为被除数大于除数
+		result_list->push_back(atoi((char *)result[i]));
+	}
+	return result_list;
 }
 
 
@@ -227,22 +235,35 @@ int big_divide(vector<Exp>* exp, vector<Exp>* main_exp)
 	for (int i = 0; i < dangqian.size(); i++) {
 		dangqian[i] = (*exp)[i].xishu;
 	}
+	// 将除数列表转换为整数列表
+	vector<int> new_exp;
+	for (vector<Exp>::iterator it = exp->begin(); it < exp->end(); ++it)
+	{
+		new_exp.push_back(it->xishu);
+	}
 	int bei;
+	int n = 0;
 	while (true) 
 	{
+		n += 1;
 		// 判断被除数是否大于除数
-		if (if_dividend_bigger_than_divisor(exp, &dangqian)) 
+		if (if_dividend_bigger_than_divisor(&new_exp, &dangqian)) 
 		{
 			// 遍历测试被除数是除数的多少倍(取整)(也就是商)
-			bei = beishu(exp, &dangqian);
+			bei = beishu(&new_exp, &dangqian);
 
 			// 除数的每一项乘以倍数
-			vector<int>* result = cheng(exp, bei);
+			vector<int>* result = cheng(&new_exp, bei);
 
 			// 被除数的每一项减去除数的每一项
-
+			vector<int>* beichu = sub(result, &dangqian);
 
 			// 将他们的差设为新一轮的被除数
+			if (n != 1) {
+				delete& dangqian;
+			}
+			dangqian = *beichu;
+			delete result;
 		}
 		else
 		{
@@ -255,7 +276,10 @@ int big_divide(vector<Exp>* exp, vector<Exp>* main_exp)
 			else
 			{
 				// 已没有要除的数，大除法完成，程序返回余数
-				return;
+				if (n != 1) {
+					delete& dangqian;
+				}
+				return zhuanhuan(&dangqian);
 			}
 		}
 	}
@@ -275,6 +299,8 @@ int main(void)
 	cin >> main_exp;
 	vector<Exp>* main_exp_list = fenXi(replace_space(&exp));
 	if_add_cishu(exp_list);
+
+	cout << big_divide(exp_list, main_exp_list);
 
 	return 0;
 }
