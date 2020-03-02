@@ -170,25 +170,6 @@ vector<int>* cheng(vector<int>* exp, int bei)
 	return result;
 }
 
-int beishu(vector<int>* exp, vector<int>* main_exp) 
-{
-	int bei = 2;
-	while (true)
-	{
-		vector<int>* result = cheng(exp, bei);
-		if (if_dividend_bigger_than_divisor(result, main_exp))
-		{
-			bei += 1;
-			delete result;
-		}
-		else {
-			delete result;
-			return bei - 1;
-		}
-	}
-	//return (int)(*main_exp)[0] / (*exp)[0];
-}
-
 // 数组转换整数
 int zhuanhuan(vector<int>* exp) 
 {
@@ -250,7 +231,7 @@ int big_divide(vector<Exp>* exp, vector<Exp>* main_exp)
 	{
 		new_exp.push_back(it->xishu);
 	}
-	int bei;
+	double bei;
 	int n = 0;
 	while (true) 
 	{
@@ -259,43 +240,43 @@ int big_divide(vector<Exp>* exp, vector<Exp>* main_exp)
 		remove_zero(&new_exp);
 		remove_zero(&dangqian);
 
-		// 判断被除数是否大于除数
-		if (if_dividend_bigger_than_divisor(&new_exp, &dangqian)) 
-		{
-			// 遍历测试被除数是除数的多少倍(取整)(也就是商)
-			bei = beishu(&new_exp, &dangqian);
-
-			// 除数的每一项乘以倍数
-			vector<int>* result = cheng(&new_exp, bei);
-
-			// 被除数的每一项减去除数的每一项
-			vector<int>* beichu = sub(result, &dangqian);
-
-			// 将他们的差设为新一轮的被除数
-			/*if (n != 1) {
-				delete &dangqian;
-			}*/
-			dangqian = *beichu;
-			delete result;
-		}
-		else
-		{
-			// 判断总被除数内是否还有未添加到当前被除数的数
-			if (beichuNextCount != main_exp->size())
-			{
-				// 将总被除数的下一位添加到当前被除数
-				dangqian.push_back((*main_exp)[beichuNextCount].xishu);
-				beichuNextCount += 1;
-			}
-			else
-			{
-				// 已没有要除的数，大除法完成，程序返回余数
-				/*if (n != 1) {
-					delete& dangqian;
-				}*/
-				return zhuanhuan(&dangqian);
+		// 被除数补齐
+		if (new_exp.size() != dangqian.size()) {
+			for (;new_exp.size() - dangqian.size() != 0;) {
+				// 判断总被除数内是否还有未添加到当前被除数的数
+				if (beichuNextCount != main_exp->size())
+				{
+					// 将总被除数的下一位添加到当前被除数
+					dangqian.push_back((*main_exp)[beichuNextCount].xishu);
+					beichuNextCount += 1;
+				}
+				else
+				{
+					// 已没有要除的数，大除法完成，程序返回余数
+					/*if (n != 1) {
+						delete& dangqian;
+					}*/
+					return zhuanhuan(&dangqian);
+				}
 			}
 		}
+
+		// 遍历测试被除数是除数的多少倍(取整)(也就是商)
+		//bei = beishu(&new_exp, &dangqian);
+		bei = dangqian[0] / new_exp[0];
+
+		// 除数的每一项乘以倍数
+		vector<int>* result = cheng(&new_exp, bei);
+
+		// 被除数的每一项减去除数的每一项
+		vector<int>* beichu = sub(result, &dangqian);
+
+		// 将他们的差设为新一轮的被除数
+		/*if (n != 1) {
+			delete &dangqian;
+		}*/
+		dangqian = *beichu;
+		delete result;
 	}
 
 	return 0;
