@@ -284,18 +284,34 @@ int big_divide(vector<Exp>* exp, vector<Exp>* main_exp)
 
 int main(void)
 {
-	string exp, main_exp;
-	cout << "请输入已知式(xx xx = 0,)‘=0’省略：";
-	cin >> exp;
-	vector<Exp>* exp_list = fenXi(replace_space(&exp));
-	if_add_cishu(exp_list);
+	cout << "------------------------降幂求值模拟程序------------------------" << endl;
+	cout << "---版本：V0.8-alpha" << endl;
+	cout << "---请仔细阅读以下操作说明，操作不当可能造成内存泄漏，后果自负" << endl;
+	cout << "- 1.请输入多项式的最简形式，中间不要带空格" << endl;
+	cout << "- 2.已知式化为'xxx=0'的形式，输入时不带'=0'" << endl;
+	cout << "- 3.多项式中只能存在一个未知数，且未知数命名为'x'" << endl;
+	cout << "- 4.乘方用'^'号代替，如：'3x^5'" << endl;
+	cout << "- 5.如出现程序1秒内未能给出响应，请立即打开任务管理器终止该程序" << endl;
+	cout << "---例子：已知式：2x^3+x-2，待求式：2x^6+3x^4+x^2-x，结果：2" << endl;
+	cout << "---例子：已知式：x^3+2x+2，待求式：2x^6+8x^4+8x^2-4，结果：4" << endl << endl;
 
-	cout << "请输入待求式：";
-	cin >> main_exp;
-	vector<Exp>* main_exp_list = fenXi(replace_space(&main_exp));
-	if_add_cishu(main_exp_list);
+	while (true)
+	{
+		string exp, main_exp;
+		cout << "请输入已知式‘=0’省略：";
+		cin >> exp;
+		vector<Exp>* exp_list = fenXi(replace_space(&exp));
+		if_add_cishu(exp_list);
 
-	cout << big_divide(exp_list, main_exp_list);
+		cout << "请输入待求式：";
+		cin >> main_exp;
+		vector<Exp>* main_exp_list = fenXi(replace_space(&main_exp));
+		if_add_cishu(main_exp_list);
 
+		cout << "结果可能是：" << big_divide(exp_list, main_exp_list) << endl;
+		cout << endl;
+	}
+
+	system("pause");
 	return 0;
 }
