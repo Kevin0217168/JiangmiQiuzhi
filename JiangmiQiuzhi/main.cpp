@@ -99,6 +99,7 @@ string replace_space(string* exp) {
 // 补齐次数项
 void if_add_cishu(vector<Exp>* exp)
 {
+
 	int last_cishu = (*exp)[0].cishu + 1;
 	for (vector<Exp>::iterator it = exp->begin(); it < exp->end(); ++it)
 	{
@@ -109,16 +110,21 @@ void if_add_cishu(vector<Exp>* exp)
 		}
 		last_cishu = it->cishu;
 	}
+	for (int i = (*exp)[exp->size() - 1].cishu; i > 0; i--) 
+	{
+		Exp _ = { 0, i-1 };
+		exp->push_back(_);
+	}
 }
 
 // 删除首位出现的零
-void remove_zero(vector<Exp>* exp)
+void remove_zero(vector<int>* exp)
 {
-	for (vector<Exp>::iterator it = exp->begin(); it < exp->end(); ++it)
+	for (vector<int>::iterator it = exp->begin(); it < exp->end();)
 	{
-		if (it->xishu == 0)
+		if (*it == 0)
 		{
-			it = exp->erase(it);
+			it = (exp->erase(it));
 		}
 		else
 		{
@@ -142,12 +148,16 @@ bool if_dividend_bigger_than_divisor(vector<int>* exp, vector<int>* main_exp)
 	// 位数相同时判断每一位的大小
 	for (int index = 0; index < exp->size(); index++)
 	{
-		if ((*main_exp)[index] < (*exp)[index])
+		if ((*main_exp)[index] > (*exp)[index])
+		{
+			return true;
+		}
+		else if ((*main_exp)[index] < (*exp)[index]) 
 		{
 			return false;
 		}
 	}
-	return true;
+	return false;
 }
 
 vector<int>* cheng(vector<int>* exp, int bei) 
@@ -166,7 +176,7 @@ int beishu(vector<int>* exp, vector<int>* main_exp)
 	while (true)
 	{
 		vector<int>* result = cheng(exp, bei);
-		if (if_dividend_bigger_than_divisor(exp, main_exp)) 
+		if (if_dividend_bigger_than_divisor(result, main_exp))
 		{
 			bei += 1;
 			delete result;
@@ -176,6 +186,7 @@ int beishu(vector<int>* exp, vector<int>* main_exp)
 			return bei - 1;
 		}
 	}
+	//return (int)(*main_exp)[0] / (*exp)[0];
 }
 
 // 数组转换整数
@@ -192,7 +203,10 @@ int zhuanhuan(vector<int>* exp)
 			// 截掉负号
 			shu = shu.substr(1, shu.size());
 			// 该数后补充0
-			shu = shu + string("0", (exp->size() - index + 1));
+			if (exp->size() - index - 1 != 0) 
+			{
+				shu = shu + string("0", (exp->size() - index - 1));
+			}
 			// 转换为整数，添加到待减列表
 			daijian.push_back(atoi(shu.data()));
 		}
@@ -213,11 +227,9 @@ int zhuanhuan(vector<int>* exp)
 vector<int>* sub(vector<int>* exp, vector<int>* main_exp) 
 {
 	vector<int>* result_list = new vector<int>;
-	string result = to_string(zhuanhuan(exp) - zhuanhuan(main_exp));
-	for (int i = 0; i < result.size(); i++) 
+	for (int index = 0; index < main_exp->size(); index++)
 	{
-		// 这里不用判断复数的情况，因为被除数大于除数
-		result_list->push_back(atoi((char *)result[i]));
+		result_list->push_back((*main_exp)[index] - (*exp)[index]);
 	}
 	return result_list;
 }
@@ -226,14 +238,11 @@ vector<int>* sub(vector<int>* exp, vector<int>* main_exp)
 // 大除法！！！
 int big_divide(vector<Exp>* exp, vector<Exp>* main_exp)
 {
-	// 删除首位出现的0
-	remove_zero(exp);
-	remove_zero(main_exp);
 	// 从总被除数中取出与除数相同个数的数，添加到当前被除数
 	int beichuNextCount = exp->size();
-	vector<int> dangqian(exp->size());
-	for (int i = 0; i < dangqian.size(); i++) {
-		dangqian[i] = (*exp)[i].xishu;
+	vector<int> dangqian;
+	for (int i = 0; i < exp->size(); i++) {
+		dangqian.push_back((*main_exp)[i].xishu);
 	}
 	// 将除数列表转换为整数列表
 	vector<int> new_exp;
@@ -246,6 +255,10 @@ int big_divide(vector<Exp>* exp, vector<Exp>* main_exp)
 	while (true) 
 	{
 		n += 1;
+		// 删除首位出现的0
+		remove_zero(&new_exp);
+		remove_zero(&dangqian);
+
 		// 判断被除数是否大于除数
 		if (if_dividend_bigger_than_divisor(&new_exp, &dangqian)) 
 		{
@@ -259,9 +272,9 @@ int big_divide(vector<Exp>* exp, vector<Exp>* main_exp)
 			vector<int>* beichu = sub(result, &dangqian);
 
 			// 将他们的差设为新一轮的被除数
-			if (n != 1) {
-				delete& dangqian;
-			}
+			/*if (n != 1) {
+				delete &dangqian;
+			}*/
 			dangqian = *beichu;
 			delete result;
 		}
@@ -272,13 +285,14 @@ int big_divide(vector<Exp>* exp, vector<Exp>* main_exp)
 			{
 				// 将总被除数的下一位添加到当前被除数
 				dangqian.push_back((*main_exp)[beichuNextCount].xishu);
+				beichuNextCount += 1;
 			}
 			else
 			{
 				// 已没有要除的数，大除法完成，程序返回余数
-				if (n != 1) {
+				/*if (n != 1) {
 					delete& dangqian;
-				}
+				}*/
 				return zhuanhuan(&dangqian);
 			}
 		}
@@ -297,8 +311,8 @@ int main(void)
 
 	cout << "请输入待求式：";
 	cin >> main_exp;
-	vector<Exp>* main_exp_list = fenXi(replace_space(&exp));
-	if_add_cishu(exp_list);
+	vector<Exp>* main_exp_list = fenXi(replace_space(&main_exp));
+	if_add_cishu(main_exp_list);
 
 	cout << big_divide(exp_list, main_exp_list);
 
